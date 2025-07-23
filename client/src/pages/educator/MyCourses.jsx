@@ -17,7 +17,7 @@ const MyCourses = () => {
     // setCourses(allCourses)
     try {
       const token = await getToken();
-      const {data} = await axios.get(backendUrl + '/api/educator/courses', { headers: { Authorization: `Bearer ${token}` } })
+      const {data} = await axios.get(backendUrl + 'api/educator/courses', { headers: { Authorization: `Bearer ${token}` } })
       // console.log("data", data.courses);
       
 

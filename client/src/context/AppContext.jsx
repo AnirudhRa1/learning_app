@@ -9,7 +9,7 @@ export const AppContext = createContext()
 
 export const AppContextProvider = (props)=>{
 
-    const backendUrl = import.meta.env.VITE_BACKEND_URL;
+    const backendUrl = import.meta.env.VITE_BACKENDURL;
 
     const currency = import.meta.env.VITE_CURRENCY;
     const navigate = useNavigate();
@@ -26,7 +26,7 @@ export const AppContextProvider = (props)=>{
     const fetchAllCourses = async ()=>{
         // setAllCourses(dummyCourses)
         try {
-            const {data} = await axios.get(backendUrl + '/api/course/all');
+            const {data} = await axios.get(backendUrl + 'api/course/all');
             if(data.success)
             {
                 setAllCourses(data.courses)
@@ -49,7 +49,7 @@ export const AppContextProvider = (props)=>{
         try {
             const token = await getToken();
 
-            const {data} = await axios.get(backendUrl + '/api/user/data' , {headers: {Authorization: `Bearer ${token}`}})
+            const {data} = await axios.get(backendUrl + 'api/user/data' , {headers: {Authorization: `Bearer ${token}`}})
         
             if(data.success){
                 setUserData(data.user)
@@ -129,7 +129,7 @@ export const AppContextProvider = (props)=>{
     const fetchUserEnrolledCourses = async () => {
         try {
             const token = await getToken();
-            const response = await axios.get(backendUrl + "/api/user/enrolled-courses", {
+            const response = await axios.get(backendUrl + "api/user/enrolled-courses", {
                 headers: { Authorization: `Bearer ${token}` }
             });
     

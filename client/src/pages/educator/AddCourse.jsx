@@ -10,8 +10,8 @@ import Logger from '../../components/Logger'
 
 const AddCourse = () => {
 
-  const { backendUrl, getToken,} = useContext(AppContext)
-
+  const {  getToken,} = useContext(AppContext)
+  const backendUrl = import.meta.env.VITE_BACKENDURL 
 
   const quillRef =  useRef(null)
   const editorRef =  useRef(null)
@@ -103,124 +103,64 @@ const AddCourse = () => {
 
 
   const handleSubmit = async (e) => {
-    try {
-      e.preventDefault();
-  
-      if (!image) {
-        toast.error("Thumbnail Not Selected");
-        return; // Prevent further execution
-      }
-  
-      // if (!chapters.length) {
-      //   toast.error("At least one chapter is required!");
-      //   return;
-      // }
-  
-      // // Ensure each chapter has a chapter order
-      // const updatedChapters = chapters.map((ch, index) => ({
-      //   ...ch,
-      //   chapterorder: ch.chapterorder || index + 1, // Auto-assign order if missing
-      // }));
-  
-      const courseData = {
-        courseTitle,
-        courseDescription: quillRef.current.root.innerHTML,
-        coursePrice: Number(coursePrice),
-        discount: Number(discount),
-        // isPublished: true, // ✅ Fix: Include isPublished field
-        courseContent: chapters,
-      };
-  
-      const formData = new FormData();
-      formData.append("courseData", JSON.stringify(courseData)); // ✅ Ensure courseData is sent as JSON
-      formData.append("image", image); // ✅ Ensure image is sent correctly
-  
-      const token = await getToken();
-      const { data } = await axios.post(
-        backendUrl + "/api/educator/add-course",
-        formData,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-  
-      console.log("data", data);
-  
-      if (data.success) {
-        toast.success(data.message);
-        setCourseTitle("");
-        setCoursePrice(0);
-        setDiscount(0);
-        setImage(null);
-        setChapters([]);
-        quillRef.current.root.innerHTML = "";
-      } else {
-        toast.error(data.message);
-      }
-    } catch (error) {
-      toast.error(error.message);
-      console.log(error.message);
+  try {
+    e.preventDefault();
+
+    if (!image) {
+      toast.error("Thumbnail Not Selected");
+      return;
     }
-  };
 
+    const courseData = {
+      courseTitle,
+      courseDescription: quillRef.current.root.innerHTML,
+      coursePrice: Number(coursePrice),
+      discount: Number(discount),
+      isPublished: true, // Add this back in
+      courseContent: chapters,
+    };
 
+    const formData = new FormData();
+    formData.append("courseData", JSON.stringify(courseData));
+    formData.append("image", image);
 
-//  const handleSubmit = async (e) => {
-//   try {
-//     e.preventDefault();
+    const token = await getToken();
+    
+    // Fix the URL construction to ensure no double slashes
+    const apiUrl = `${backendUrl}api/educator/add-course`;
+      
+    console.log("Posting to URL:", apiUrl); // Debug the URL
+    
+    const { data } = await axios.post(
+      apiUrl,
+      formData,
+      { 
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data' // Make sure this is set for file upload
+        } 
+      }
+    );
 
-//     if (!image) {
-//       toast.error("Thumbnail Not Selected");
-//       return; // Prevent further execution
-//     }
+    console.log("Response data:", data);
 
-//     if (!chapters.length) {
-//       toast.error("At least one chapter is required!");
-//       return;
-//     }
-
-//     // Ensure each chapter has a chapter order
-//     const updatedChapters = chapters.map((ch, index) => ({
-//       ...ch,
-//       chapterorder: ch.chapterorder || index + 1, // Auto-assign order if missing
-//     }));
-
-//     const courseData = {
-//       courseTitle,
-//       courseDescription: quillRef.current.root.innerHTML,
-//       coursePrice: Number(coursePrice),
-//       discount: Number(discount),
-//       isPublished: true, // ✅ Fix: Include isPublished field
-//       courseContent: updatedChapters,
-//     };
-
-//     const formData = new FormData();
-//     formData.append("courseData", JSON.stringify(courseData)); // ✅ Ensure courseData is sent as JSON
-//     formData.append("image", image); // ✅ Ensure image is sent correctly
-
-//     const token = await getToken();
-//     const { data } = await axios.post(
-//       backendUrl + "/api/educator/add-course",
-//       formData,
-//       { headers: { Authorization: `Bearer ${token}` } }
-//     );
-
-//     console.log("data", data);
-
-//     if (data.success) {
-//       toast.success(data.message);
-//       setCourseTitle("");
-//       setCoursePrice(0);
-//       setDiscount(0);
-//       setImage(null);
-//       setChapters([]);
-//       quillRef.current.root.innerHTML = "";
-//     } else {
-//       toast.error(data.message);
-//     }
-//   } catch (error) {
-//     toast.error(error.message);
-//     console.log(error.message);
-//   }
-// };
+    if (data.success) {
+      toast.success(data.message);
+      setCourseTitle("");
+      setCoursePrice(0);
+      setDiscount(0);
+      setImage(null);
+      setChapters([]);
+      quillRef.current.root.innerHTML = "";
+    } else {
+      toast.error(data.message);
+    }
+  } catch (error) {
+    console.error("Full error:", error); // Log the full error object
+    toast.error(error.response?.data?.message || error.message);
+    console.log(error.message);
+  }
+};
 
   useEffect(()=>{
     // initiate Quill only once
